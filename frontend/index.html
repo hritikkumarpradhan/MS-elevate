@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mental Health Trend Monitor — Data-driven dashboard for policymakers tracking regional mental health sentiment trends." />
+  <title>Mental Health Trend Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════
+       APP SHELL
+  ════════════════════════════════════════════ -->
+  <div class="app-shell">
+
+    <!-- ── TOP HEADER ── -->
+    <header class="top-header">
+      <div class="header-left">
+        <div class="header-logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" stroke="#00BFA5" stroke-width="2"/>
+              <path d="M8 20 Q12 10 16 16 Q20 22 24 12" stroke="#00BFA5" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="16" cy="16" r="3" fill="#00BFA5" opacity="0.4"/>
+            </svg>
+          </div>
+          <div class="header-title-group">
+            <h1 class="header-title">Mental Health Trend Monitor</h1>
+            <span class="header-subtitle">Policy Intelligence Platform</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-meta">
+          <span class="data-badge">
+            <span class="pulse"></span>
+            Live Analysis
+          </span>
+          <span id="header-timestamp" class="timestamp"></span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost" id="btn-refresh" title="Refresh data">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 10a6 6 0 0 1 6-6 6 6 0 0 1 4.24 1.76L16 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M16 4v4h-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 10a6 6 0 0 1-6 6 6 6 0 0 1-4.24-1.76L4 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M4 16v-4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Refresh
+          </button>
+          <button class="btn-accent" id="btn-export" title="Export report">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 3v10M6 10l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 15v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Export PDF
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── MAIN LAYOUT ── -->
+    <div class="main-layout">
+
+      <!-- ══════════════════════════════
+           SIDEBAR
+      ══════════════════════════════ -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#00BFA5" stroke-width="1.7"/><path d="M7 10h6M10 7v6" stroke="#00BFA5" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Region Selection
+          </div>
+
+          <div class="select-controls">
+            <button class="btn-link" id="btn-select-all">Select All</button>
+            <span class="divider">|</span>
+            <button class="btn-link" id="btn-clear-all">Clear</button>
+          </div>
+
+          <div class="region-list" id="region-list">
+            <!-- Populated by JS -->
+            <div class="skeleton-list">
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M3 17V8l7-5 7 5v9" stroke="#00BFA5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="12" width="6" height="5" rx="1" stroke="#00BFA5" stroke-width="1.7"/></svg>
+            Year
+          </div>
+          <select class="styled-select" id="year-select">
+            <option value="2024" selected>2024</option>
+          </select>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm0 4v4l3 2" stroke="#00BFA5" stroke-width="1.7" stroke-linecap="round"/></svg>
+            National Summary
+          </div>
+          <div class="summary-grid" id="summary-grid">
+            <div class="summary-card">
+              <div class="summary-label">Nat'l Average</div>
+              <div class="summary-value" id="stat-national">—</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Best Region</div>
+              <div class="summary-value teal" id="stat-best">—</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Needs Attention</div>
+              <div class="summary-value amber" id="stat-worst">—</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Data Points</div>
+              <div class="summary-value" id="stat-samples">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M4 16l3-5 3 2 3-4 3 3" stroke="#00BFA5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Chart View
+          </div>
+          <div class="chart-type-tabs">
+            <button class="chart-tab active" id="tab-trend" data-type="trend">Trend Lines</button>
+            <button class="chart-tab" id="tab-comparison" data-type="comparison">Comparison</button>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="pipeline-badge">
+            <div class="pipeline-dot"></div>
+            <span>spaCy NLP + NLTK VADER</span>
+          </div>
+          <div class="pipeline-badge" style="margin-top:6px">
+            <div class="pipeline-dot"></div>
+            <span>Matplotlib v3 Charts</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ══════════════════════════════
+           MAIN CONTENT
+      ══════════════════════════════ -->
+      <main class="content-area">
+
+        <!-- ── STAT CARDS ROW ── -->
+        <section class="stat-cards-row" id="stat-cards-row">
+          <div class="stat-card" id="scard-regions">
+            <div class="stat-card-icon teal-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/></svg>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="scard-regions-val">6</div>
+              <div class="stat-card-label">Regions Monitored</div>
+            </div>
+          </div>
+          <div class="stat-card" id="scard-sentiment">
+            <div class="stat-card-icon blue-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 14.5c-2.21 0-4-1.79-4-4h8c0 2.21-1.79 4-4 4zm-3-7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm6 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" fill="currentColor"/></svg>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="scard-sentiment-val">—</div>
+              <div class="stat-card-label">Avg. Sentiment Score</div>
+            </div>
+          </div>
+          <div class="stat-card" id="scard-samples">
+            <div class="stat-card-icon purple-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="scard-samples-val">—</div>
+              <div class="stat-card-label">Text Samples Analyzed</div>
+            </div>
+          </div>
+          <div class="stat-card" id="scard-trend">
+            <div class="stat-card-icon amber-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 4 4L19 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8h4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="scard-trend-val">—</div>
+              <div class="stat-card-label">National Trend</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── CHART PANEL ── -->
+        <section class="panel chart-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Sentiment Trend Analysis</h2>
+              <p class="panel-subtitle">NLP-processed sentiment scores across selected regions (0 = negative, 100 = positive)</p>
+            </div>
+            <div class="panel-controls">
+              <span class="legend-item legend-positive">
+                <span class="legend-dot"></span>Positive (&gt;65)
+              </span>
+              <span class="legend-item legend-caution">
+                <span class="legend-dot"></span>Caution (&lt;35)
+              </span>
+              <button class="btn-ghost small" id="btn-dl-chart">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 4 3-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="12" width="12" height="2" rx="1" fill="currentColor" opacity="0.5"/></svg>
+                Download
+              </button>
+            </div>
+          </div>
+          <div class="chart-container" id="chart-container">
+            <div class="chart-placeholder" id="chart-placeholder">
+              <div class="chart-loading" id="chart-loading">
+                <div class="spinner"></div>
+                <p>Loading NLP pipeline and generating chart…</p>
+              </div>
+              <img id="chart-img" src="" alt="Sentiment trend chart" style="display:none" />
+            </div>
+          </div>
+          <div class="chart-footer">
+            <span id="chart-pipeline-info" class="pipeline-info">Generating via Matplotlib + spaCy + NLTK VADER…</span>
+          </div>
+        </section>
+
+        <!-- ── RESOURCE ALLOCATION TABLE ── -->
+        <section class="panel table-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Resource Allocation Recommendations</h2>
+              <p class="panel-subtitle">Evidence-based allocation priorities derived from sentiment analysis pipeline</p>
+            </div>
+            <div class="panel-controls">
+              <input type="search" class="search-input" id="table-search" placeholder="Search regions…" />
+              <button class="btn-ghost small" id="btn-dl-table">Export CSV</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table" id="resources-table">
+              <thead>
+                <tr>
+                  <th data-sort="region" class="sort-col">Region <span class="sort-arrow">↕</span></th>
+                  <th data-sort="avg_sentiment" class="sort-col">Avg. Sentiment <span class="sort-arrow">↕</span></th>
+                  <th data-sort="trend" class="sort-col">Trend <span class="sort-arrow">↕</span></th>
+                  <th data-sort="priority" class="sort-col">Priority <span class="sort-arrow">↕</span></th>
+                  <th data-sort="allocation_score" class="sort-col">Alloc. Score <span class="sort-arrow">↕</span></th>
+                  <th data-sort="recommended_counselors" class="sort-col">Counselors Needed <span class="sort-arrow">↕</span></th>
+                  <th data-sort="active_programs" class="sort-col">Programs <span class="sort-arrow">↕</span></th>
+                  <th data-sort="budget_allocation_pct" class="sort-col">Budget % <span class="sort-arrow">↕</span></th>
+                </tr>
+              </thead>
+              <tbody id="resources-tbody">
+                <tr><td colspan="8" class="table-loading">
+                  <div class="spinner small"></div>
+                  Loading resource allocation data…
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer" id="table-footer">
+            <span id="table-row-count">— rows</span>
+            <div class="table-totals" id="table-totals"></div>
+          </div>
+        </section>
+
+        <!-- ── NLP PIPELINE STATUS ── -->
+        <section class="panel pipeline-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">NLP Pipeline Status</h2>
+              <p class="panel-subtitle">Real-time processing information from the backend spaCy + NLTK pipeline</p>
+            </div>
+          </div>
+          <div class="pipeline-status-grid" id="pipeline-status-grid">
+            <div class="pipeline-component">
+              <div class="pipeline-comp-header">
+                <div class="comp-badge teal">spaCy</div>
+                <span class="comp-name">Linguistic Processing</span>
+              </div>
+              <ul class="comp-features">
+                <li>Tokenization &amp; POS tagging</li>
+                <li>Named entity recognition</li>
+                <li>Dependency parsing</li>
+                <li>Negation detection</li>
+              </ul>
+              <div class="comp-status" id="spacy-status"><span class="status-dot"></span>Checking…</div>
+            </div>
+            <div class="pipeline-component">
+              <div class="pipeline-comp-header">
+                <div class="comp-badge blue">NLTK</div>
+                <span class="comp-name">VADER Sentiment</span>
+              </div>
+              <ul class="comp-features">
+                <li>Compound sentiment score</li>
+                <li>Positive/negative/neutral %</li>
+                <li>Rule-based lexicon</li>
+                <li>Context-aware scoring</li>
+              </ul>
+              <div class="comp-status active" id="nltk-status"><span class="status-dot active"></span>Active</div>
+            </div>
+            <div class="pipeline-component">
+              <div class="pipeline-comp-header">
+                <div class="comp-badge purple">Matplotlib</div>
+                <span class="comp-name">Chart Rendering</span>
+              </div>
+              <ul class="comp-features">
+                <li>Server-side PNG generation</li>
+                <li>Dark-theme styling</li>
+                <li>Confidence band shading</li>
+                <li>Multi-region overlay</li>
+              </ul>
+              <div class="comp-status active"><span class="status-dot active"></span>Active</div>
+            </div>
+            <div class="pipeline-component">
+              <div class="pipeline-comp-header">
+                <div class="comp-badge amber">Data</div>
+                <span class="comp-name">Anonymized Corpus</span>
+              </div>
+              <ul class="comp-features">
+                <li>360+ text samples / region</li>
+                <li>Zero PII exposure</li>
+                <li>Seasonal variation modeled</li>
+                <li>Regional bias simulation</li>
+              </ul>
+              <div class="comp-status active" id="data-status"><span class="status-dot active"></span>Ready</div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Export overlay -->
+  <div class="overlay" id="export-overlay" style="display:none">
+    <div class="overlay-card">
+      <div class="overlay-icon">📋</div>
+      <h3>Generating PDF Report…</h3>
+      <p>Compiling all charts and tables into a policymaker report.</p>
+      <div class="progress-bar"><div class="progress-fill" id="export-progress"></div></div>
+      <button class="btn-ghost" onclick="document.getElementById('export-overlay').style.display='none'">Cancel</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
